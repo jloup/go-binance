@@ -405,14 +405,14 @@ func (as *apiService) UserDataWebsocket(urwr UserDataWebsocketRequest) (chan *Ac
 }
 
 func (as *apiService) exitHandler(c *websocket.Conn, done chan struct{}) {
-	ticker := time.NewTicker(time.Second)
+	ticker := time.NewTicker(3 * time.Second)
 	defer ticker.Stop()
 	defer c.Close()
 
 	for {
 		select {
-		case t := <-ticker.C:
-			err := c.WriteMessage(websocket.TextMessage, []byte(t.String()))
+		case <-ticker.C:
+			err := c.WriteMessage(websocket.PongMessage, []byte("heartbeat"))
 			if err != nil {
 				level.Error(as.Logger).Log("wsWrite", err)
 				return
