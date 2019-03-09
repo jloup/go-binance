@@ -44,6 +44,8 @@ type Binance interface {
 	// AllOrders returns list of all previous orders.
 	AllOrders(aor AllOrdersRequest) ([]*ExecutedOrder, error)
 
+	// Exchange information.
+	ExchangeInfoQuery() (*ExchangeInfo, error)
 	// Account returns account data.
 	Account(ar AccountRequest) (*Account, error)
 	// MyTrades list user's trades.
@@ -318,6 +320,11 @@ func (b *binance) QueryOrder(qor QueryOrderRequest) (*ExecutedOrder, error) {
 	return b.Service.QueryOrder(qor)
 }
 
+// QueryOrder returns data about existing order.
+func (b *binance) ExchangeInfoQuery() (*ExchangeInfo, error) {
+	return b.Service.ExchangeInfoQuery()
+}
+
 // CancelOrderRequest represents CancelOrder request data.
 type CancelOrderRequest struct {
 	Symbol            string
@@ -395,6 +402,16 @@ type Balance struct {
 	Asset  string
 	Free   float64
 	Locked float64
+}
+
+type Market struct {
+	Symbol     string
+	BaseAsset  string
+	QuoteAsset string
+}
+
+type ExchangeInfo struct {
+	Symbols []*Market
 }
 
 // Account returns account data.

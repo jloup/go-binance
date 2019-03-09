@@ -32,6 +32,8 @@ type Service interface {
 	OpenOrders(oor OpenOrdersRequest) ([]*ExecutedOrder, error)
 	AllOrders(aor AllOrdersRequest) ([]*ExecutedOrder, error)
 
+	// Exchange information.
+	ExchangeInfoQuery() (*ExchangeInfo, error)
 	Account(ar AccountRequest) (*Account, error)
 	MyTrades(mtr MyTradesRequest) ([]*Trade, error)
 	Withdraw(wr WithdrawRequest) (*WithdrawResult, error)

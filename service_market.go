@@ -19,6 +19,27 @@ func (as *apiService) Ping() error {
 	return nil
 }
 
+func (as *apiService) ExchangeInfoQuery() (*ExchangeInfo, error) {
+	params := make(map[string]string)
+	res, err := as.request("GET", "api/v1/exchangeInfo", params, false, false)
+	if err != nil {
+		return nil, err
+	}
+	textRes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to read response from Time")
+	}
+	defer res.Body.Close()
+
+	exchangeInfo := ExchangeInfo{}
+
+	if err := json.Unmarshal(textRes, &exchangeInfo); err != nil {
+		return nil, errors.Wrap(err, "exchangeInfo unmarshal failed")
+	}
+
+	return &exchangeInfo, nil
+}
+
 func (as *apiService) Time() (time.Time, error) {
 	params := make(map[string]string)
 	res, err := as.request("GET", "api/v1/time", params, false, false)
