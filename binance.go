@@ -109,7 +109,8 @@ type OrderBook struct {
 
 type DepthEvent struct {
 	WSEvent
-	UpdateID int
+	LastUpdateID  int
+	FirstUpdateID int
 	OrderBook
 }
 
