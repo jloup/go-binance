@@ -11,8 +11,87 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+func (as *apiService) PartialDepthWebsocket(dwr DepthWebsocketRequest) (chan *DepthEvent, chan struct{}, error) {
+	url := fmt.Sprintf("wss://stream.binance.com:9443/ws/%s@depth20@1000ms", strings.ToLower(dwr.Symbol))
+	c, _, err := websocket.DefaultDialer.Dial(url, nil)
+	if err != nil {
+		log.Fatal("dial:", err)
+	}
+
+	done := make(chan struct{})
+	dech := make(chan *DepthEvent)
+
+	go func() {
+		defer c.Close()
+		defer close(done)
+		for {
+			select {
+			case <-as.Ctx.Done():
+				level.Info(as.Logger).Log("closing reader")
+				return
+			default:
+				_, message, err := c.ReadMessage()
+				if err != nil {
+					level.Error(as.Logger).Log("wsRead", err)
+					return
+				}
+				rawDepth := struct {
+					LastUpdateID int             `json:"lastUpdateId"`
+					Bids         [][]interface{} `json:"bids"`
+					Asks         [][]interface{} `json:"asks"`
+				}{}
+				if err := json.Unmarshal(message, &rawDepth); err != nil {
+					level.Error(as.Logger).Log("wsUnmarshal", err, "body", string(message))
+					return
+				}
+
+				de := &DepthEvent{
+					LastUpdateID: rawDepth.LastUpdateID,
+				}
+
+				for _, b := range rawDepth.Bids {
+					p, err := floatFromString(b[0])
+					if err != nil {
+						level.Error(as.Logger).Log("wsUnmarshal", err, "body", string(message))
+						return
+					}
+					q, err := floatFromString(b[1])
+					if err != nil {
+						level.Error(as.Logger).Log("wsUnmarshal", err, "body", string(message))
+						return
+					}
+					de.Bids = append(de.Bids, &Order{
+						Price:    p,
+						Quantity: q,
+					})
+				}
+				for _, a := range rawDepth.Asks {
+					p, err := floatFromString(a[0])
+					if err != nil {
+						level.Error(as.Logger).Log("wsUnmarshal", err, "body", string(message))
+						return
+					}
+					q, err := floatFromString(a[1])
+					if err != nil {
+						level.Error(as.Logger).Log("wsUnmarshal", err, "body", string(message))
+						return
+					}
+					de.Asks = append(de.Asks, &Order{
+						Price:    p,
+						Quantity: q,
+					})
+				}
+				dech <- de
+			}
+		}
+	}()
+
+	go as.exitHandler(c, done)
+	return dech, done, nil
+}
+
 func (as *apiService) DepthWebsocket(dwr DepthWebsocketRequest) (chan *DepthEvent, chan struct{}, error) {
-	url := fmt.Sprintf("wss://stream.binance.com:9443/ws/%s@depth", strings.ToLower(dwr.Symbol))
+	url := fmt.Sprintf("wss://stream.binance.com:9443/ws/%s@dept0@1000ms", strings.ToLower(dwr.Symbol))
 	c, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		log.Fatal("dial:", err)

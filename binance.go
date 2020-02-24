@@ -64,6 +64,7 @@ type Binance interface {
 	// CloseUserDataStream closes opened stream.
 	CloseUserDataStream(s *Stream) error
 
+	PartialDepthWebsocket(dwr DepthWebsocketRequest) (chan *DepthEvent, chan struct{}, error)
 	DepthWebsocket(dwr DepthWebsocketRequest) (chan *DepthEvent, chan struct{}, error)
 	KlineWebsocket(kwr KlineWebsocketRequest) (chan *KlineEvent, chan struct{}, error)
 	TradeWebsocket(twr TradeWebsocketRequest) (chan *AggTradeEvent, chan struct{}, error)
@@ -539,6 +540,10 @@ type DepthWebsocketRequest struct {
 
 func (b *binance) DepthWebsocket(dwr DepthWebsocketRequest) (chan *DepthEvent, chan struct{}, error) {
 	return b.Service.DepthWebsocket(dwr)
+}
+
+func (b *binance) PartialDepthWebsocket(dwr DepthWebsocketRequest) (chan *DepthEvent, chan struct{}, error) {
+	return b.Service.PartialDepthWebsocket(dwr)
 }
 
 type KlineWebsocketRequest struct {
