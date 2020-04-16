@@ -84,7 +84,7 @@ func (as *apiService) request(method string, endpoint string, params map[string]
 	apiKey bool, sign bool) (*http.Response, error) {
 	transport := &http.Transport{}
 
-	transport.TLSClientConfig.MinVersion = tls.VersionTLS12
+	transport.TLSClientConfig = &tls.Config{MinVersion: tls.VersionTLS12}
 	client := &http.Client{
 		Transport: transport,
 	}
