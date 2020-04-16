@@ -2,6 +2,7 @@ package binance
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"time"
@@ -82,6 +83,8 @@ func NewAPIService(url, apiKey string, signer Signer, logger log.Logger, ctx con
 func (as *apiService) request(method string, endpoint string, params map[string]string,
 	apiKey bool, sign bool) (*http.Response, error) {
 	transport := &http.Transport{}
+
+	transport.TLSClientConfig.MinVersion = tls.VersionTLS12
 	client := &http.Client{
 		Transport: transport,
 	}
