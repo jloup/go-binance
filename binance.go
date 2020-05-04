@@ -3,6 +3,8 @@ package binance
 import (
 	"fmt"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 // Binance is wrapper for Binance API.
@@ -272,12 +274,20 @@ type NewOrderRequest struct {
 	Timestamp        time.Time
 }
 
+type Fill struct {
+	Price           decimal.Decimal
+	Quantity        decimal.Decimal
+	Commission      decimal.Decimal
+	CommissionAsset string
+}
+
 // ProcessedOrder represents data from processed order.
 type ProcessedOrder struct {
 	Symbol        string
 	OrderID       int64
 	ClientOrderID string
 	TransactTime  time.Time
+	Fills         []Fill
 }
 
 // NewOrder places new order and returns ProcessedOrder.

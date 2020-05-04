@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
+	"github.com/shopspring/decimal"
 )
 
 type rawExecutedOrder struct {
@@ -62,7 +63,14 @@ func (as *apiService) NewOrder(or NewOrderRequest) (*ProcessedOrder, error) {
 		OrderID       int64   `json:"orderId"`
 		ClientOrderID string  `json:"clientOrderId"`
 		TransactTime  float64 `json:"transactTime"`
+		Fills         []struct {
+			Price           decimal.Decimal `json:"price"`
+			Quantity        decimal.Decimal `json:"qty"`
+			Commission      decimal.Decimal `json:"commission"`
+			CommissionAsset string          `json:"commissionAsset"`
+		} `json:"fills"`
 	}{}
+
 	if err := json.Unmarshal(textRes, &rawOrder); err != nil {
 		return nil, errors.Wrap(err, "rawOrder unmarshal failed")
 	}
@@ -72,11 +80,17 @@ func (as *apiService) NewOrder(or NewOrderRequest) (*ProcessedOrder, error) {
 		return nil, err
 	}
 
+	fills := make([]Fill, len(rawOrder.Fills))
+	for i, fill := range rawOrder.Fills {
+		fills[i] = Fill{fill.Price, fill.Quantity, fill.Commission, fill.CommissionAsset}
+	}
+
 	return &ProcessedOrder{
 		Symbol:        rawOrder.Symbol,
 		OrderID:       rawOrder.OrderID,
 		ClientOrderID: rawOrder.ClientOrderID,
 		TransactTime:  t,
+		Fills:         fills,
 	}, nil
 }
 
