@@ -286,6 +286,7 @@ type ProcessedOrder struct {
 	Symbol        string
 	OrderID       int64
 	ClientOrderID string
+	Status        string
 	TransactTime  time.Time
 	Fills         []Fill
 }
@@ -419,10 +420,29 @@ type Market struct {
 	Symbol     string
 	BaseAsset  string
 	QuoteAsset string
+	Filters    []Filter
+}
+
+type Filter struct {
+	FilterType string
+
+	// PRICE_FILTER
+	MinPrice decimal.Decimal
+	MaxPrice decimal.Decimal
+	TickSize decimal.Decimal
+
+	// LOT_SIZE
+	MinQty   decimal.Decimal
+	MaxQty   decimal.Decimal
+	StepSize decimal.Decimal
+
+	// MIN_NOTIONAL
+	MinNotional decimal.Decimal
 }
 
 type ExchangeInfo struct {
-	Symbols []*Market
+	Symbols         []*Market
+	ExchangeFilters []*Filter
 }
 
 // Account returns account data.
@@ -444,6 +464,7 @@ type Trade struct {
 	ID              int64
 	Price           float64
 	Qty             float64
+	QuoteQty        float64
 	Commission      float64
 	CommissionAsset string
 	Time            time.Time

@@ -60,6 +60,7 @@ func (as *apiService) NewOrder(or NewOrderRequest) (*ProcessedOrder, error) {
 
 	rawOrder := struct {
 		Symbol        string  `json:"symbol"`
+		Status        string  `json:"status"`
 		OrderID       int64   `json:"orderId"`
 		ClientOrderID string  `json:"clientOrderId"`
 		TransactTime  float64 `json:"transactTime"`
@@ -87,6 +88,7 @@ func (as *apiService) NewOrder(or NewOrderRequest) (*ProcessedOrder, error) {
 
 	return &ProcessedOrder{
 		Symbol:        rawOrder.Symbol,
+		Status:        rawOrder.Status,
 		OrderID:       rawOrder.OrderID,
 		ClientOrderID: rawOrder.ClientOrderID,
 		TransactTime:  t,
@@ -401,6 +403,7 @@ func (as *apiService) MyTrades(mtr MyTradesRequest) ([]*Trade, error) {
 		ID              int64   `json:"id"`
 		Price           string  `json:"price"`
 		Qty             string  `json:"qty"`
+		QuoteQty        string  `json:"quoteQty"`
 		Commission      string  `json:"commission"`
 		CommissionAsset string  `json:"commissionAsset"`
 		Time            float64 `json:"time"`
@@ -422,6 +425,10 @@ func (as *apiService) MyTrades(mtr MyTradesRequest) ([]*Trade, error) {
 		if err != nil {
 			return nil, err
 		}
+		quoteQty, err := floatFromString(rt.QuoteQty)
+		if err != nil {
+			return nil, err
+		}
 		commission, err := floatFromString(rt.Commission)
 		if err != nil {
 			return nil, err
@@ -434,6 +441,7 @@ func (as *apiService) MyTrades(mtr MyTradesRequest) ([]*Trade, error) {
 			ID:              rt.ID,
 			Price:           price,
 			Qty:             qty,
+			QuoteQty:        quoteQty,
 			Commission:      commission,
 			CommissionAsset: rt.CommissionAsset,
 			Time:            t,

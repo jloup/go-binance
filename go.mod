@@ -11,6 +11,7 @@ require (
 	github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515
 	github.com/pkg/errors v0.8.0
 	github.com/pmezard/go-difflib v1.0.0
+	github.com/shopspring/decimal v1.2.0
 	github.com/stretchr/objx v0.0.0-20150928122152-1a9d0bb9f541
 	github.com/stretchr/testify v1.1.4
 )

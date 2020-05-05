@@ -103,6 +103,7 @@ func (as *apiService) request(method string, endpoint string, params map[string]
 	if apiKey {
 		req.Header.Add("X-MBX-APIKEY", as.APIKey)
 	}
+
 	if sign {
 		level.Debug(as.Logger).Log("queryString", q.Encode())
 		q.Add("signature", as.Signer.Sign([]byte(q.Encode())))
