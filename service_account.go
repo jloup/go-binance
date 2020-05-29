@@ -592,13 +592,14 @@ func (as *apiService) WithdrawHistory(hr HistoryRequest) ([]*Withdrawal, error) 
 
 	rawWithdrawHistory := struct {
 		WithdrawList []struct {
-			Id        string  `json:"id"`
-			Amount    float64 `json:"amount"`
-			Address   string  `json:"address"`
-			TxID      string  `json:"txId"`
-			Asset     string  `json:"asset"`
-			ApplyTime float64 `json:"insertTime"`
-			Status    int     `json:"status"`
+			Id             string          `json:"id"`
+			Amount         float64         `json:"amount"`
+			Address        string          `json:"address"`
+			TxID           string          `json:"txId"`
+			Asset          string          `json:"asset"`
+			TransactionFee decimal.Decimal `json:"transactionFee"`
+			ApplyTime      float64         `json:"insertTime"`
+			Status         int             `json:"status"`
 		}
 		Success bool `json:"success"`
 	}{}
@@ -613,13 +614,14 @@ func (as *apiService) WithdrawHistory(hr HistoryRequest) ([]*Withdrawal, error) 
 			return nil, err
 		}
 		wc = append(wc, &Withdrawal{
-			Id:        w.Id,
-			Amount:    w.Amount,
-			Address:   w.Address,
-			TxID:      w.TxID,
-			Asset:     w.Asset,
-			ApplyTime: t,
-			Status:    w.Status,
+			Id:             w.Id,
+			Amount:         w.Amount,
+			Address:        w.Address,
+			TxID:           w.TxID,
+			TransactionFee: w.TransactionFee,
+			Asset:          w.Asset,
+			ApplyTime:      t,
+			Status:         w.Status,
 		})
 	}
 
