@@ -592,6 +592,7 @@ func (as *apiService) WithdrawHistory(hr HistoryRequest) ([]*Withdrawal, error) 
 
 	rawWithdrawHistory := struct {
 		WithdrawList []struct {
+			Id        string  `json:"id"`
 			Amount    float64 `json:"amount"`
 			Address   string  `json:"address"`
 			TxID      string  `json:"txId"`
@@ -612,6 +613,7 @@ func (as *apiService) WithdrawHistory(hr HistoryRequest) ([]*Withdrawal, error) 
 			return nil, err
 		}
 		wc = append(wc, &Withdrawal{
+			Id:        w.Id,
 			Amount:    w.Amount,
 			Address:   w.Address,
 			TxID:      w.TxID,
