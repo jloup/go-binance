@@ -39,7 +39,7 @@ type Service interface {
 	MyTrades(mtr MyTradesRequest) ([]*Trade, error)
 	Withdraw(wr WithdrawRequest) (*WithdrawResult, error)
 	DepositHistory(hr HistoryRequest) ([]*Deposit, error)
-	WithdrawHistory(hr HistoryRequest) ([]*Withdrawal, error)
+	WithdrawHistory(hr HistoryRequest) (WithdrawHistoryResult, error)
 
 	StartUserDataStream() (*Stream, error)
 	KeepAliveUserDataStream(s *Stream) error
@@ -104,12 +104,15 @@ func (as *apiService) request(method string, endpoint string, params map[string]
 		req.Header.Add("X-MBX-APIKEY", as.APIKey)
 	}
 
+	rq := q.Encode()
+
 	if sign {
 		level.Debug(as.Logger).Log("queryString", q.Encode())
-		q.Add("signature", as.Signer.Sign([]byte(q.Encode())))
+		rq = fmt.Sprintf("%s&signature=%s", rq, as.Signer.Sign([]byte(q.Encode())))
 		level.Debug(as.Logger).Log("signature", as.Signer.Sign([]byte(q.Encode())))
 	}
-	req.URL.RawQuery = q.Encode()
+
+	req.URL.RawQuery = rq
 
 	resp, err := client.Do(req)
 	if err != nil {

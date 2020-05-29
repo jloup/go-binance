@@ -57,7 +57,7 @@ type Binance interface {
 	// DepositHistory lists deposit data.
 	DepositHistory(hr HistoryRequest) ([]*Deposit, error)
 	// WithdrawHistory lists withdraw data.
-	WithdrawHistory(hr HistoryRequest) ([]*Withdrawal, error)
+	WithdrawHistory(hr HistoryRequest) (WithdrawHistoryResult, error)
 
 	// StartUserDataStream starts stream and returns Stream with ListenKey.
 	StartUserDataStream() (*Stream, error)
@@ -535,8 +535,14 @@ type Withdrawal struct {
 	Status         int
 }
 
+type WithdrawHistoryResult struct {
+	Success     bool
+	Msg         string
+	Withdrawals []*Withdrawal
+}
+
 // WithdrawHistory lists withdraw data.
-func (b *binance) WithdrawHistory(hr HistoryRequest) ([]*Withdrawal, error) {
+func (b *binance) WithdrawHistory(hr HistoryRequest) (WithdrawHistoryResult, error) {
 	return b.Service.WithdrawHistory(hr)
 }
 

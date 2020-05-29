@@ -466,7 +466,7 @@ func (as *apiService) Withdraw(wr WithdrawRequest) (*WithdrawResult, error) {
 		params["name"] = wr.Name
 	}
 
-	res, err := as.request("POST", "wapi/v1/withdraw.html", params, true, true)
+	res, err := as.request("POST", "wapi/v3/withdraw.html", params, true, true)
 	if err != nil {
 		return nil, err
 	}
@@ -557,7 +557,7 @@ func (as *apiService) DepositHistory(hr HistoryRequest) ([]*Deposit, error) {
 
 	return dc, nil
 }
-func (as *apiService) WithdrawHistory(hr HistoryRequest) ([]*Withdrawal, error) {
+func (as *apiService) WithdrawHistory(hr HistoryRequest) (WithdrawHistoryResult, error) {
 	params := make(map[string]string)
 	params["timestamp"] = strconv.FormatInt(unixMillis(hr.Timestamp), 10)
 	if hr.Asset != "" {
@@ -576,18 +576,18 @@ func (as *apiService) WithdrawHistory(hr HistoryRequest) ([]*Withdrawal, error) 
 		params["recvWindow"] = strconv.FormatInt(recvWindow(hr.RecvWindow), 10)
 	}
 
-	res, err := as.request("POST", "wapi/v1/getWithdrawHistory.html", params, true, true)
+	res, err := as.request("GET", "wapi/v3/withdrawHistory.html", params, true, true)
 	if err != nil {
-		return nil, err
+		return WithdrawHistoryResult{}, err
 	}
 	textRes, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to read response from withdrawHistory.post")
+		return WithdrawHistoryResult{}, errors.Wrap(err, "unable to read response from withdrawHistory.post")
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
-		return nil, as.handleError(textRes)
+		return WithdrawHistoryResult{}, as.handleError(textRes)
 	}
 
 	rawWithdrawHistory := struct {
@@ -601,17 +601,18 @@ func (as *apiService) WithdrawHistory(hr HistoryRequest) ([]*Withdrawal, error) 
 			ApplyTime      float64         `json:"insertTime"`
 			Status         int             `json:"status"`
 		}
-		Success bool `json:"success"`
+		Success bool   `json:"success"`
+		Msg     string `json:"msg"`
 	}{}
 	if err := json.Unmarshal(textRes, &rawWithdrawHistory); err != nil {
-		return nil, errors.Wrap(err, "rawWithdrawHistory unmarshal failed")
+		return WithdrawHistoryResult{}, errors.Wrap(err, "rawWithdrawHistory unmarshal failed")
 	}
 
 	var wc []*Withdrawal
 	for _, w := range rawWithdrawHistory.WithdrawList {
 		t, err := timeFromUnixTimestampFloat(w.ApplyTime)
 		if err != nil {
-			return nil, err
+			return WithdrawHistoryResult{}, err
 		}
 		wc = append(wc, &Withdrawal{
 			Id:             w.Id,
@@ -625,7 +626,11 @@ func (as *apiService) WithdrawHistory(hr HistoryRequest) ([]*Withdrawal, error) 
 		})
 	}
 
-	return wc, nil
+	return WithdrawHistoryResult{
+		Success:     rawWithdrawHistory.Success,
+		Msg:         rawWithdrawHistory.Msg,
+		Withdrawals: wc,
+	}, nil
 }
 
 func executedOrderFromRaw(reo *rawExecutedOrder) (*ExecutedOrder, error) {
