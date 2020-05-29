@@ -490,6 +490,7 @@ type WithdrawRequest struct {
 
 // WithdrawResult represents Withdraw result.
 type WithdrawResult struct {
+	Id      string
 	Success bool
 	Msg     string
 }

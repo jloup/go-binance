@@ -481,6 +481,7 @@ func (as *apiService) Withdraw(wr WithdrawRequest) (*WithdrawResult, error) {
 	}
 
 	rawResult := struct {
+		Id      string `json:"id"`
 		Msg     string `json:"msg"`
 		Success bool   `json:"success"`
 	}{}
@@ -489,6 +490,7 @@ func (as *apiService) Withdraw(wr WithdrawRequest) (*WithdrawResult, error) {
 	}
 
 	return &WithdrawResult{
+		Id:      rawResult.Id,
 		Msg:     rawResult.Msg,
 		Success: rawResult.Success,
 	}, nil
