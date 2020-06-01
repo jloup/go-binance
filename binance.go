@@ -48,6 +48,8 @@ type Binance interface {
 
 	// Exchange information.
 	ExchangeInfoQuery() (*ExchangeInfo, error)
+	// Asset detail.
+	AssetDetailQuery() (*AssetDetailResponse, error)
 	// Account returns account data.
 	Account(ar AccountRequest) (*Account, error)
 	// MyTrades list user's trades.
@@ -337,6 +339,10 @@ func (b *binance) ExchangeInfoQuery() (*ExchangeInfo, error) {
 	return b.Service.ExchangeInfoQuery()
 }
 
+func (b *binance) AssetDetailQuery() (*AssetDetailResponse, error) {
+	return b.Service.AssetDetailQuery()
+}
+
 // CancelOrderRequest represents CancelOrder request data.
 type CancelOrderRequest struct {
 	Symbol            string
@@ -443,6 +449,20 @@ type Filter struct {
 type ExchangeInfo struct {
 	Symbols         []*Market
 	ExchangeFilters []*Filter
+}
+
+//
+type AssetDetailResponse struct {
+	Details map[string]AssetDetail `json:"assetDetail"`
+	Success bool
+	Msg     string
+}
+
+//
+type AssetDetail struct {
+	WithdrawFee       decimal.Decimal
+	WithdrawStatus    bool
+	MinWithdrawAmount decimal.Decimal
 }
 
 // Account returns account data.

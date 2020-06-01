@@ -35,6 +35,7 @@ type Service interface {
 
 	// Exchange information.
 	ExchangeInfoQuery() (*ExchangeInfo, error)
+	AssetDetailQuery() (*AssetDetailResponse, error)
 	Account(ar AccountRequest) (*Account, error)
 	MyTrades(mtr MyTradesRequest) ([]*Trade, error)
 	Withdraw(wr WithdrawRequest) (*WithdrawResult, error)

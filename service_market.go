@@ -40,6 +40,27 @@ func (as *apiService) ExchangeInfoQuery() (*ExchangeInfo, error) {
 	return &exchangeInfo, nil
 }
 
+func (as *apiService) AssetDetailQuery() (*AssetDetailResponse, error) {
+	params := make(map[string]string)
+	res, err := as.request("GET", "wapi/v3/assetDetail.html", params, true, true)
+	if err != nil {
+		return nil, err
+	}
+	textRes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to read response from Time")
+	}
+	defer res.Body.Close()
+
+	response := AssetDetailResponse{}
+
+	if err := json.Unmarshal(textRes, &response); err != nil {
+		return nil, errors.Wrap(err, "assetDetail unmarshal failed")
+	}
+
+	return &response, nil
+}
+
 func (as *apiService) Time() (time.Time, error) {
 	params := make(map[string]string)
 	res, err := as.request("GET", "api/v1/time", params, false, false)
