@@ -42,6 +42,7 @@ func (as *apiService) ExchangeInfoQuery() (*ExchangeInfo, error) {
 
 func (as *apiService) AssetDetailQuery() (*AssetDetailResponse, error) {
 	params := make(map[string]string)
+	params["timestamp"] = strconv.FormatInt(unixMillis(time.Now().UTC()), 10)
 	res, err := as.request("GET", "wapi/v3/assetDetail.html", params, true, true)
 	if err != nil {
 		return nil, err
